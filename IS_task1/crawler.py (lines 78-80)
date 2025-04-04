@@ -1,0 +1,6 @@
+import sys
+
+if len(sys.argv) < 2:
+    print("Использование: python crawler.py <url1> <url2> ...")
+else:
+    main(sys.argv[1:]) 
