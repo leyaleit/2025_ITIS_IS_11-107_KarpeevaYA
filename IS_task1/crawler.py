@@ -6,14 +6,14 @@ import sys
 
 visited = set()
 to_visit = []
-max_docs = 100
-min_words = 1000
+max_docs = 100  # Ограничение на количество скачиваемых страниц
+min_words = 1000  # Минимальное количество слов на странице
 base_output_dir = "pages"
 index_file = "index.txt"
 doc_count = 0
 
 def clean_text(soup):
-    # Убираем все ненужное
+    # Убираем все ненужные элементы
     for tag in soup(["script", "style", "header", "footer", "nav", "aside"]):
         tag.decompose()
     return soup.get_text(separator=" ", strip=True)
@@ -50,8 +50,11 @@ def crawl(url):
             href = link['href']
             full_url = urljoin(url, href)
             parsed = urlparse(full_url)
-            if parsed.scheme.startswith("http") and "wikipedia.org" in parsed.netloc:
-                to_visit.append(full_url)
+            # Фильтруем ссылки, оставляя только те, что ведут на страницы Википедии
+            if parsed.scheme.startswith("http") and "ru.wikipedia.org" in parsed.netloc:
+                # Исключаем ссылки на саму страницу "Искусственный интеллект"
+                if "Искусственный_интеллект" not in full_url:
+                    to_visit.append(full_url)
 
     except Exception as e:
         print(f"Ошибка при обработке {url}: {e}")
@@ -73,7 +76,7 @@ def main(start_urls):
     print(f"Готово! Скачано {doc_count} страниц.")
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("Использование: python crawler.py <url1> <url2> ...")
-    else:
-        main(sys.argv[1:])
+    start_urls = [
+        'https://ru.wikipedia.org/wiki/Искусственный_интеллект',  # Начальная страница для краулера
+    ]
+    main(start_urls)
