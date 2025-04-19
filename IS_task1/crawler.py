@@ -1,6 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
-from urllib.parse import urljoin, urlparse
+from urllib.parse import urljoin, urlparse, unquote
 import os
 import sys
 
@@ -50,11 +50,13 @@ def crawl(url):
             href = link['href']
             full_url = urljoin(url, href)
             parsed = urlparse(full_url)
-            # Фильтруем ссылки, оставляя только те, что ведут на страницы Википедии
+
             if parsed.scheme.startswith("http") and "ru.wikipedia.org" in parsed.netloc:
-                # Исключаем ссылки на саму страницу "Искусственный интеллект"
-                if "Искусственный_интеллект" not in full_url:
-                    to_visit.append(full_url)
+                decoded_url = unquote(full_url)
+
+                # исключаем повторяющиеся статьи на одну тему
+                if "Искусственный_интеллект" not in decoded_url:
+                    to_visit.append(decoded_url)
 
     except Exception as e:
         print(f"Ошибка при обработке {url}: {e}")
@@ -77,6 +79,7 @@ def main(start_urls):
 
 if __name__ == "__main__":
     start_urls = [
-        'https://ru.wikipedia.org/wiki/Искусственный_интеллект',  # Начальная страница для краулера
+        'https://ru.wikipedia.org/wiki/Искусственный_интеллект',
     ]
     main(start_urls)
+
